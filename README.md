@@ -2,6 +2,8 @@
 
 India's open government data, visualized.
 
+Live sectors: Agriculture · Economy · Weather & Rainfall · Crime & Order · Population · Health.
+
 ## Quick start
 
 ```bash

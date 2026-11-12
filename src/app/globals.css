@@ -622,3 +622,39 @@ body {
   background-size: 22px 22px;
   mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 40%, transparent 100%);
 }
+
+/* ================= SECTOR 07 — HEALTH (swasth clinic) ================= */
+[data-domain="health"] {
+  --accent: #2dd4bf;
+  --accent-2: #5eead4;
+  --accent-soft: rgba(45, 212, 191, 0.14);
+  --accent-glow: rgba(45, 212, 191, 0.4);
+}
+[data-domain="health"] .glow-text {
+  text-shadow: 0 0 16px rgba(45, 212, 191, 0.5), 0 0 70px rgba(20, 184, 166, 0.35);
+}
+[data-domain="health"] .hud-panel::before,
+[data-domain="health"] .hud-panel::after,
+[data-domain="health"] .hud-panel > .hud-corners::before,
+[data-domain="health"] .hud-panel > .hud-corners::after {
+  border-color: #2dd4bf;
+}
+.pulse-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1150px 650px at 76% -15%, rgba(45, 212, 191, 0.14), transparent 60%),
+    radial-gradient(900px 620px at -12% 108%, rgba(94, 234, 212, 0.1), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(15, 118, 110, 0.14), transparent 60%),
+    var(--color-abyss);
+}
+.pulse-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(94, 234, 212, 0.04) 1px, transparent 1px);
+  background-size: 100% 46px;
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 45%, transparent 100%);
+}

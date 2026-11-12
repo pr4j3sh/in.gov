@@ -88,14 +88,14 @@ export const DOMAINS: Domain[] = [
   {
     slug: 'health',
     index: '07',
-    codename: 'AROGYA',
+    codename: 'SWASTH',
     title: 'Health',
-    tagline: 'Public health signals',
+    tagline: 'The health ledger',
     description:
-      'Immunization coverage, hospital statistics and disease-surveillance indicators nationwide.',
-    accent: '#5eead4',
+      'Full Immunization Coverage 2019-24 and RHS 2021 staffing gaps — doctors, specialists, nurses and MPWs by state.',
+    accent: '#2dd4bf',
     icon: 'heart',
-    status: 'standby',
+    status: 'active',
   },
   {
     slug: 'budget',

@@ -12,6 +12,7 @@ const NAV = [
   { href: '/d/crime', label: 'CRIME' },
   { href: '/d/weather', label: 'WEATHER' },
   { href: '/d/population', label: 'POPULATION' },
+  { href: '/d/health', label: 'HEALTH' },
 ]
 
 function useISTClock() {
