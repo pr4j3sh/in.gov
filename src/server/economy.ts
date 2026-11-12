@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises'
-import path from 'node:path'
+import cpiSnapshot from '@/lib/snapshots/cpi.json'
 import {
   CPI_SECTOR,
   latestAsOf,
@@ -50,8 +49,7 @@ async function loadSnapshot() {
   if (snapshotRawCache && snapshotLatestCache) {
     return { records: snapshotRawCache, latestBySector: snapshotLatestCache }
   }
-  const file = path.join(process.cwd(), 'src/lib/snapshots/cpi.json')
-  const data = JSON.parse(await readFile(file, 'utf8')) as SnapshotFile
+  const data = cpiSnapshot as unknown as SnapshotFile
   snapshotRawCache = data.records
   snapshotLatestCache = data.latestBySector ?? {}
   return { records: snapshotRawCache, latestBySector: snapshotLatestCache }

@@ -13,6 +13,7 @@ import { HudPanel } from "@/components/hud/hud-panel";
 import { Chip } from "@/components/hud/chip";
 import { HudSearch } from "@/components/hud/hud-search";
 import { ManifestStrip } from "@/components/hud/manifest-strip";
+import { SourceLink } from "@/components/hud/source-link";
 import { StatTile } from "@/components/hud/stat-tile";
 import { StatusPill } from "@/components/hud/status-pill";
 import {
@@ -502,7 +503,12 @@ export function AgricultureDashboard() {
           <span key="lic" className="inline-flex items-center gap-1.5 text-hud/80">
             <ShieldCheck size={11} aria-hidden /> GODL-INDIA LICENSE
           </span>,
-          "SOURCE — “Current Daily Price of Various Commodities from Various Markets (Mandi)”",
+          <SourceLink
+            key="src"
+            href="https://www.data.gov.in"
+            label="SOURCE — data.gov.in"
+            className="hover:text-leaf"
+          />,
           "MINISTRY OF AGRICULTURE & FARMERS WELFARE",
           "UNIT — ₹ / QUINTAL",
           "MODAL = MOST-TRADED PRICE",

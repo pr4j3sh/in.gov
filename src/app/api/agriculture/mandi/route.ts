@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getMandiData } from '@/server/mandi'
 
+// Cold starts pull 4 pages × 5000 records from api.data.gov.in — allow up to 60s on Vercel.
+export const maxDuration = 60
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const state = searchParams.get('state')

@@ -47,3 +47,10 @@
 - [x] Economy dashboard: One Number hero, YoY trajectory (5Y/10Y/MAX + RBI corridor markArea), per-basket pressure bars, 18-month ledger table, sector chips (Rural/Urban/Combined)
 - [x] Ink-gold ledger identity (tokens, background, table rules), Home card → ACTIVE
 - [ ] IIP / GDP depth — blocked on live OGD resources (MoSPI feeds ended 2023)
+
+## Crime sector (Sector 09 — Rakshak)
+- [x] Snapshot generator from NCRB Tables 1.1/1.2/1.3/1B.3/9B.1 (opencity.in CKAN mirror)
+- [x] src/lib/crime.ts + tests — table parsing, totals, metro/cyber aggregation
+- [x] /api/crime/ncrb route (disk-cached snapshot, archived source)
+- [x] Crime dashboard: One Number hero (58,85,867; complaint→FIR funnel), crime-heads ranking, Metro League table, cyber-surge chart, 3-yr arc
+- [x] Rakshak dossier identity, home 3×3 grid, nav link, 3 of 9 sectors online

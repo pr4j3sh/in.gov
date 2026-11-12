@@ -483,3 +483,62 @@ body {
   background: rgba(245, 193, 92, 0.14);
   box-shadow: 0 0 16px rgba(245, 193, 92, 0.3), inset 0 0 12px rgba(245, 193, 92, 0.12);
 }
+
+/* ================= SECTOR 09 — CRIME (rakshak dossier) ================= */
+[data-domain="crime"] {
+  --accent: #fb7185;
+  --accent-2: #fbbf24;
+  --accent-soft: rgba(251, 113, 133, 0.13);
+  --accent-glow: rgba(251, 113, 133, 0.38);
+}
+[data-domain="crime"] .glow-text {
+  text-shadow: 0 0 16px rgba(251, 113, 133, 0.5), 0 0 70px rgba(251, 113, 133, 0.3);
+}
+[data-domain="crime"] .hud-panel::before,
+[data-domain="crime"] .hud-panel::after,
+[data-domain="crime"] .hud-panel > .hud-corners::before,
+[data-domain="crime"] .hud-panel > .hud-corners::after {
+  border-color: #fb7185;
+}
+.dossier-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1150px 650px at 80% -15%, rgba(251, 113, 133, 0.13), transparent 60%),
+    radial-gradient(900px 620px at -12% 108%, rgba(251, 191, 36, 0.09), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(159, 18, 57, 0.14), transparent 60%),
+    var(--color-abyss);
+}
+.dossier-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 46px,
+      rgba(251, 113, 133, 0.028) 46px,
+      rgba(251, 113, 133, 0.028) 47px
+    );
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 45%, transparent 100%);
+}
+
+/* evidence-stamp */
+.ncrb-stamp {
+  transform: rotate(-4deg);
+  border: 2px solid rgba(251, 113, 133, 0.55);
+  color: rgba(251, 113, 133, 0.85);
+  letter-spacing: 0.28em;
+  padding: 0.4rem 0.9rem;
+  border-radius: 3px;
+  box-shadow: inset 0 0 18px rgba(251, 113, 133, 0.15), 0 0 26px rgba(251, 113, 133, 0.18);
+  text-shadow: 0 0 12px rgba(251, 113, 133, 0.5);
+  white-space: nowrap;
+}
+
+/* metro league table */
+.metro-table tbody tr { border-top: 1px solid rgba(251, 113, 133, 0.1); }
+.metro-table tbody tr:nth-child(odd) { background: rgba(251, 113, 133, 0.03); }
+.metro-table td { font-variant-numeric: tabular-nums; }

@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises'
-import path from 'node:path'
+import mandiSnapshot from '@/lib/snapshots/mandi.json'
 import {
   byCommodity,
   byState,
@@ -61,10 +60,8 @@ interface SnapshotFile {
 
 async function loadSnapshot(): Promise<MandiRawRecord[]> {
   if (snapshotRawCache) return snapshotRawCache
-  const file = path.join(process.cwd(), 'src/lib/snapshots/mandi.json')
-  const data = JSON.parse(await readFile(file, 'utf8')) as SnapshotFile
-  snapshotRawCache = data.records
-  return data.records
+  snapshotRawCache = (mandiSnapshot as unknown as SnapshotFile).records
+  return snapshotRawCache
 }
 
 export async function getMandiData(filters: {

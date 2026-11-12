@@ -1,4 +1,4 @@
-import { Radar, Orbit, Database, ShieldCheck } from 'lucide-react'
+import { Radar, Orbit, Database, ShieldCheck, CodeXml, Bug } from 'lucide-react'
 import Link from 'next/link'
 import { DomainGrid } from '@/components/home/domain-grid'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
@@ -35,7 +35,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 font-mono text-[10px] tracking-[0.2em] text-text-dim">
             <span><span className="text-text">10,000+</span> DATASETS ON MANIFEST</span>
             <span><span className="text-text">28</span> STATES + <span className="text-text">8</span> UTs</span>
-            <span><span className="text-text">02/08</span> SECTORS ONLINE</span>
+            <span><span className="text-text">03/09</span> SECTORS ONLINE</span>
           </div>
 
           <MetaRail
@@ -56,7 +56,7 @@ export default function HomePage() {
               </h2>
             </div>
             <p className="hidden font-mono text-[9px] tracking-[0.25em] text-text-dim sm:block">
-              2 OF 8 SECTORS ONLINE
+              3 OF 9 SECTORS ONLINE
             </p>
           </div>
 
@@ -67,7 +67,9 @@ export default function HomePage() {
               <><Orbit size={12} className="text-hud" aria-hidden /> LIVE data.gov.in FEEDS · NORMALIZED SERVER-SIDE</>,
               <>SECTORS marked <b className="text-text">STANDBY</b> UNLOCK AS DATA CONTRACTS ARE VERIFIED</>,
               <><ShieldCheck size={12} className="text-leaf" aria-hidden /> GODL-INDIA LICENSE</>,
-              <>FOUND A GAP? OPEN AN ISSUE</>,
+              <Link key="issue" href="https://github.com/pr4j3sh/in.gov/issues/new" className="inline-flex items-center gap-1.5 transition-colors hover:text-text">
+                <Bug size={12} className="text-amber" aria-hidden /> FOUND A GAP? <span className="text-amber underline underline-offset-2 decoration-dotted">OPEN AN ISSUE</span>
+              </Link>,
             ]}
           />
         </section>
@@ -75,10 +77,16 @@ export default function HomePage() {
         {/* ---------- footer ---------- */}
         <footer className="flex flex-col gap-2 border-t border-line py-6 font-mono text-[9px] tracking-[0.22em] text-text-dim sm:flex-row sm:items-center sm:justify-between">
           <span>IN.GOV · INDIA OPEN DATA MISSION CONTROL</span>
-          <span className="inline-flex items-center gap-2">
-            <Database size={12} className="text-hud" aria-hidden />
-            SOURCE — <Link href="https://www.data.gov.in" className="text-hud hover:underline">DATA.GOV.IN</Link>
-            {' '}· GODL-INDIA LICENSE
+          <span className="inline-flex items-center gap-4">
+            <span className="inline-flex items-center gap-2">
+              <CodeXml size={13} className="text-hud" aria-hidden />
+              SOURCE — <Link href="https://github.com/pr4j3sh/in.gov" className="text-hud hover:underline">github.com/pr4j3sh/in.gov</Link>
+            </span>
+            <span className="inline-flex items-center gap-2" title="Agri & Economy: live OGD API · Crime: NCRB via opencity.in (CKAN)">
+              <Database size={12} className="text-hud" aria-hidden />
+              <Link href="https://www.data.gov.in" className="text-hud hover:underline">DATA.GOV.IN</Link>
+              <span className="text-text-dim/70">· NCRB VIA <Link href="https://data.opencity.in" className="text-hud hover:underline">OPENCITY.IN</Link> (CRIME)</span>
+            </span>
           </span>
         </footer>
       </div>

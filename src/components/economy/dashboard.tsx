@@ -5,6 +5,7 @@ import { ShieldCheck, ArrowDownRight, ArrowUpRight, BookOpenText, Coins } from '
 import { HudPanel } from '@/components/hud/hud-panel'
 import { Chip } from '@/components/hud/chip'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
+import { SourceLink } from '@/components/hud/source-link'
 import { StatusPill } from '@/components/hud/status-pill'
 import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
@@ -422,8 +423,8 @@ export function EconomyDashboard() {
       <ManifestStrip
         items={[
           <span key="lic" className="inline-flex items-center gap-1.5 text-hud/80"><ShieldCheck size={11} aria-hidden /> GODL-INDIA LICENSE</span>,
-          'SOURCE — “All India Consumer Price Index (Rural/Urban)”',
-          <span key="src" className="inline-flex items-center gap-1.5"><BookOpenText size={11} aria-hidden /> MOSPI / CSO</span>,
+          <SourceLink key="src" href="https://www.data.gov.in" label="SOURCE — data.gov.in" className="hover:text-amber" />,
+          <span key="mospi" className="inline-flex items-center gap-1.5"><BookOpenText size={11} aria-hidden /> MOSPI / CSO</span>,
           <span key="base" className="inline-flex items-center gap-1.5"><Coins size={11} aria-hidden /> BASE 2012 = 100</span>,
           <span key="stale" className="text-amber/90">ARCHIVED FEED — ENDED Feb 2024 · LATEST OFFICIAL PRINT</span>,
           <span key="comb" className="text-text-dim/60">COMBINED = RURAL+URBAN</span>,

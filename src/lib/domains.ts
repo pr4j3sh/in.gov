@@ -8,7 +8,7 @@ export interface Domain {
   tagline: string
   description: string
   accent: string
-  icon: 'wheat' | 'chart' | 'bolt' | 'cloud' | 'ship' | 'train' | 'heart' | 'bank'
+  icon: 'wheat' | 'chart' | 'bolt' | 'cloud' | 'ship' | 'train' | 'heart' | 'bank' | 'gavel'
   status: DomainStatus
 }
 
@@ -108,5 +108,17 @@ export const DOMAINS: Domain[] = [
     accent: '#c4b5fd',
     icon: 'bank',
     status: 'standby',
+  },
+  {
+    slug: 'crime',
+    index: '09',
+    codename: 'RAKSHAK',
+    title: 'Crime & Order',
+    tagline: 'The law and order ledger',
+    description:
+      'Cognizable crimes nationally and in metros — 2022→2024 trends, crime-head rankings, the complaint→FIR funnel and the cyber surge.',
+    accent: '#fb7185',
+    icon: 'gavel' as Domain['icon'],
+    status: 'active',
   },
 ]

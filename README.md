@@ -3,7 +3,7 @@
 A futuristic command deck for India’s open government data ([data.gov.in](https://www.data.gov.in)).
 One Mission Control home; curated sector dashboards, each with its own look & feel on a shared HUD chassis.
 
-**Status — MVP:** Mission Control + **Agriculture (Mandi Intelligence)** live, and **Sector 02 Economy (The Ledger — CPI inflation)** live. Other sectors are on the manifest.
+**Status — MVP:** Mission Control + **Agriculture**, **Economy (The Ledger — CPI)** and **Crime & Order (Rakshak — NCRB Crime in India 2024)** live. Other sectors are on the manifest.
 
 > The Economy deck ships on the official **stale** CPI feed (OGD stopped updates in March 2023; latest print Feb 2024) and is labeled as an archived print in the UI — see `/d/economy`.
 
@@ -33,11 +33,12 @@ Without a key (or if the upstream is down), the app falls back to a bundled **sn
 ```bash
 node scripts/build-mandi-snapshot.mjs   # reads key from .env.local
 node scripts/build-cpi-snapshot.mjs     # CPI series (archived feed)
+node scripts/build-crime-snapshot.mjs   # NCRB Crime in India 2024 (opencity.in)
 ```
 
 ## Architecture
 
-- `src/app` — routes: `/` (Mission Control), `/d/agriculture`, `/d/economy`, `/api/agriculture/mandi`, `/api/economy/cpi`
+- `src/app` — routes: `/` (Mission Control), `/d/agriculture`, `/d/economy`, `/d/crime`, `/api/agriculture/mandi`, `/api/economy/cpi`, `/api/crime/ncrb`
 - `src/server/mandi.ts` — server-only: paginated OGD client (5000/page, in-process 30 min TTL), normalize, aggregate, live→snapshot fallback.
 - `src/server/economy.ts` — same pattern for the CPI feed (`cd73a2e7-…`, base 2012=100).
 - `src/lib/mandi.ts` + `src/lib/types.ts` — pure, tested adapter/aggregation functions

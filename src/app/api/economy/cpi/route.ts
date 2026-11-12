@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { getEconomyData } from '@/server/economy'
 import { CPI_SECTOR, type CpiSectorKey } from '@/lib/cpi'
 
+// Cold starts pull 4 pages × 5000 records from api.data.gov.in — allow up to 60s on Vercel.
+export const maxDuration = 60
+
 const SECTORS = new Set(Object.keys(CPI_SECTOR))
 
 export async function GET(request: Request) {
