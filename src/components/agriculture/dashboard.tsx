@@ -15,6 +15,7 @@ import { HudSearch } from "@/components/hud/hud-search";
 import { ManifestStrip } from "@/components/hud/manifest-strip";
 import { SourceLink } from "@/components/hud/source-link";
 import { StatTile } from "@/components/hud/stat-tile";
+import { InsightsDesk } from "./insights-desk";
 import { StatusPill } from "@/components/hud/status-pill";
 import {
   ChartSkeleton,
@@ -272,6 +273,9 @@ export function AgricultureDashboard() {
           </>
         )}
       </div>
+
+      {/* data-derived insights */}
+      <InsightsDesk />
 
       {/* filter deck */}
       <div className="mt-4 flex flex-wrap items-end gap-3 rounded-md border border-indigo-300/15 bg-panel-2/70 p-3 shadow-[inset_0_1px_0_rgba(199,210,254,0.08)] backdrop-blur-sm">

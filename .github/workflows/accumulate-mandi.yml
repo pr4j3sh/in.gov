@@ -1,0 +1,27 @@
+# Accumulates daily mandi insights into a git-tracked JSONL file.
+# Runs every day at 06:30 IST (01:00 UTC); appends one line to data/mandi-history.jsonl.
+name: Accumulate mandi history
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 01:00 UTC = 06:30 IST
+  workflow_dispatch:       # manual trigger
+
+jobs:
+  accumulate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - run: node scripts/accumulate-mandi.mjs
+        env:
+          # Add a repo secret: Settings → Secrets and variables → Actions → New repository secret
+          DATA_GOV_IN_API_KEY: ${{ secrets.DATA_GOV_IN_API_KEY }}
+      - name: Commit updated history
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(data): accumulate mandi insights for ${{ github.run_id }}"
+          file_pattern: data/mandi-history.jsonl
