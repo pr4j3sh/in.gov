@@ -35,7 +35,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 font-mono text-[10px] tracking-[0.2em] text-text-dim">
             <span><span className="text-text">10,000+</span> DATASETS ON MANIFEST</span>
             <span><span className="text-text">28</span> STATES + <span className="text-text">8</span> UTs</span>
-            <span><span className="text-text">06/10</span> SECTORS ONLINE</span>
+            <span><span className="text-text">08/10</span> SECTORS ONLINE</span>
           </div>
 
           <MetaRail
@@ -56,7 +56,7 @@ export default function HomePage() {
               </h2>
             </div>
             <p className="hidden font-mono text-[9px] tracking-[0.25em] text-text-dim sm:block">
-              6 OF 10 SECTORS ONLINE
+              8 OF 10 SECTORS ONLINE
             </p>
           </div>
 

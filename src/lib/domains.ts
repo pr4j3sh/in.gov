@@ -68,10 +68,10 @@ export const DOMAINS: Domain[] = [
     title: 'Trade',
     tagline: 'Imports & exports',
     description:
-      'DGCI&S foreign trade statistics by HS code and country — what India sells and buys.',
-    accent: '#f0abfc',
+      'FY25 merchandise balance −$62.1B (vs −$238B FY24); India–EU surplus +$15B; chemistry exports ₹3.93 L-crore FY25.',
+    accent: '#e879f9',
     icon: 'ship',
-    status: 'standby',
+    status: 'active',
   },
   {
     slug: 'railways',
@@ -80,10 +80,10 @@ export const DOMAINS: Domain[] = [
     title: 'Railways',
     tagline: 'Iron arteries',
     description:
-      'Zone-wise freight and passenger movement — the steel network that hauls the economy.',
-    accent: '#fda4af',
+      'FY25 freight 1,617 MT (+1.6%); ₹1.71 L-crore revenue. The FY21→FY25 recovery arc, the train mix, and the coal backbone.',
+    accent: '#22c55e',
     icon: 'train',
-    status: 'standby',
+    status: 'active',
   },
   {
     slug: 'health',
