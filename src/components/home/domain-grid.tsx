@@ -36,7 +36,7 @@ const ICONS: Record<Domain['icon'], LucideIcon> = {
 
 export function DomainGrid({ domains }: { domains: Domain[] }) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {domains.map((d, i) => {
         const active = d.status === 'active'
         const Icon = ICONS[d.icon]
