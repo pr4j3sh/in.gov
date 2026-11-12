@@ -29,13 +29,13 @@ export default function HomePage() {
             India publishes thousands of datasets — and almost nobody can read them.
             in.gov turns raw government feeds into
             <span className="text-text"> curated, sector-grade intelligence decks</span>.
-            Live wholesale mandi prices; the CPI print history; the rest of the republic, one sector at a time.
+            Live mandi prices; CPI print history; 124 monsoons on tape; the rest of the republic — one sector at a time.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 font-mono text-[10px] tracking-[0.2em] text-text-dim">
             <span><span className="text-text">10,000+</span> DATASETS ON MANIFEST</span>
             <span><span className="text-text">28</span> STATES + <span className="text-text">8</span> UTs</span>
-            <span><span className="text-text">03/09</span> SECTORS ONLINE</span>
+            <span><span className="text-text">05/10</span> SECTORS ONLINE</span>
           </div>
 
           <MetaRail
@@ -56,7 +56,7 @@ export default function HomePage() {
               </h2>
             </div>
             <p className="hidden font-mono text-[9px] tracking-[0.25em] text-text-dim sm:block">
-              3 OF 9 SECTORS ONLINE
+              5 OF 10 SECTORS ONLINE
             </p>
           </div>
 

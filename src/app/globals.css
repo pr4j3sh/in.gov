@@ -542,3 +542,83 @@ body {
 .metro-table tbody tr { border-top: 1px solid rgba(251, 113, 133, 0.1); }
 .metro-table tbody tr:nth-child(odd) { background: rgba(251, 113, 133, 0.03); }
 .metro-table td { font-variant-numeric: tabular-nums; }
+
+/* ================= SECTOR 04 — WEATHER (monsoon gauge) ================= */
+[data-domain="weather"] {
+  --accent: #38bdf8;
+  --accent-2: #2dd4bf;
+  --accent-soft: rgba(56, 189, 248, 0.14);
+  --accent-glow: rgba(56, 189, 248, 0.4);
+}
+[data-domain="weather"] .glow-text {
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.5), 0 0 70px rgba(45, 212, 191, 0.3);
+}
+[data-domain="weather"] .hud-panel::before,
+[data-domain="weather"] .hud-panel::after,
+[data-domain="weather"] .hud-panel > .hud-corners::before,
+[data-domain="weather"] .hud-panel > .hud-corners::after {
+  border-color: #38bdf8;
+}
+.rain-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1150px 650px at 75% -15%, rgba(56, 189, 248, 0.15), transparent 60%),
+    radial-gradient(900px 620px at -12% 108%, rgba(45, 212, 191, 0.12), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(14, 165, 233, 0.12), transparent 60%),
+    var(--color-abyss);
+}
+/* diagonal rain streaks */
+.rain-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    repeating-linear-gradient(
+      115deg,
+      transparent 0px,
+      transparent 42px,
+      rgba(125, 211, 252, 0.035) 42px,
+      rgba(125, 211, 252, 0.035) 43px
+    );
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 45%, transparent 100%);
+}
+
+.cmz-row-good { color: #34d399; }
+.weather-bar-item { transition: filter .2s ease; }
+
+/* ================= SECTOR 10 — POPULATION (jansankhya dossier) ================= */
+[data-domain="population"] {
+  --accent: #f97316;
+  --accent-2: #fdba74;
+  --accent-soft: rgba(249, 115, 22, 0.14);
+  --accent-glow: rgba(249, 115, 22, 0.4);
+}
+[data-domain="population"] .glow-text {
+  text-shadow: 0 0 16px rgba(249, 115, 22, 0.5), 0 0 70px rgba(234, 88, 12, 0.3);
+}
+[data-domain="population"] .hud-panel::before,
+[data-domain="population"] .hud-panel::after,
+[data-domain="population"] .hud-panel > .hud-corners::before,
+[data-domain="population"] .hud-panel > .hud-corners::after {
+  border-color: #f97316;
+}
+.terrazzo-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1150px 650px at 76% -15%, rgba(249, 115, 22, 0.14), transparent 60%),
+    radial-gradient(900px 620px at -12% 108%, rgba(234, 88, 12, 0.12), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(146, 64, 14, 0.14), transparent 60%),
+    var(--color-abyss);
+}
+.terrazzo-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgba(253, 186, 116, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 40%, transparent 100%);
+}

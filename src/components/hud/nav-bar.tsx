@@ -10,6 +10,8 @@ const NAV = [
   { href: '/d/agriculture', label: 'AGRICULTURE' },
   { href: '/d/economy', label: 'ECONOMY' },
   { href: '/d/crime', label: 'CRIME' },
+  { href: '/d/weather', label: 'WEATHER' },
+  { href: '/d/population', label: 'POPULATION' },
 ]
 
 function useISTClock() {

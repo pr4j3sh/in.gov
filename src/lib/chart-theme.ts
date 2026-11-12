@@ -111,3 +111,46 @@ export const ROSE_BAR = {
   shadowBlur: 18,
   shadowColor: 'rgba(225,29,72,0.45)',
 }
+
+export const SKY_BAR = {
+  borderRadius: [3, 3, 0, 0] as const,
+  color: linearGradient(false, [
+    { offset: 0, color: 'rgba(56,189,248,0.1)' },
+    { offset: 0.55, color: '#0ea5e9' },
+    { offset: 1, color: '#38bdf8' },
+  ]),
+  shadowBlur: 16,
+  shadowColor: 'rgba(56,189,248,0.5)',
+}
+
+export const TEAL_BAR = {
+  borderRadius: [3, 3, 0, 0] as const,
+  color: linearGradient(false, [
+    { offset: 0, color: 'rgba(45,212,191,0.09)' },
+    { offset: 0.55, color: '#0d9488' },
+    { offset: 1, color: '#2dd4bf' },
+  ]),
+  shadowBlur: 14,
+  shadowColor: 'rgba(45,212,191,0.45)',
+}
+
+export const INDIGO_BAR = {
+  borderRadius: [3, 3, 0, 0] as const,
+  color: linearGradient(false, [
+    { offset: 0, color: 'rgba(129,140,248,0.09)' },
+    { offset: 0.55, color: '#4f46e5' },
+    { offset: 1, color: '#818cf8' },
+  ]),
+  shadowBlur: 14,
+  shadowColor: 'rgba(129,140,248,0.4)',
+}
+
+export const MOVING_AVG_LINE = {
+  name: '10-yr avg',
+  type: 'line' as const,
+  smooth: 0.5,
+  symbol: 'none',
+  lineStyle: { width: 1.6, type: 'dashed' as const, color: '#2dd4bf' },
+  itemStyle: { color: '#2dd4bf' },
+  emphasis: { focus: 'series' as const },
+}

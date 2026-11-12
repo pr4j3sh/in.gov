@@ -8,7 +8,7 @@ export interface Domain {
   tagline: string
   description: string
   accent: string
-  icon: 'wheat' | 'chart' | 'bolt' | 'cloud' | 'ship' | 'train' | 'heart' | 'bank' | 'gavel'
+  icon: 'wheat' | 'chart' | 'bolt' | 'cloud' | 'ship' | 'train' | 'heart' | 'bank' | 'gavel' | 'landmark'
   status: DomainStatus
 }
 
@@ -56,10 +56,10 @@ export const DOMAINS: Domain[] = [
     title: 'Weather & Rainfall',
     tagline: 'Monsoon watch',
     description:
-      'IMD district-wise rainfall, monsoon progress and extreme-weather bulletins across India.',
-    accent: '#7dd3fc',
+      '124 years of monsoon arc (1901–2019), NE India to 2021, heavy rainfall events 2017–2022, CMZ forecast scorecard and subdivision normals.',
+    accent: '#38bdf8',
     icon: 'cloud',
-    status: 'standby',
+    status: 'active',
   },
   {
     slug: 'trade',
@@ -119,6 +119,18 @@ export const DOMAINS: Domain[] = [
       'Cognizable crimes nationally and in metros — 2022→2024 trends, crime-head rankings, the complaint→FIR funnel and the cyber surge.',
     accent: '#fb7185',
     icon: 'gavel' as Domain['icon'],
+    status: 'active',
+  },
+  {
+    slug: 'population',
+    index: '10',
+    codename: 'JANSANKHYA',
+    title: 'Population',
+    tagline: 'The people’s ledger',
+    description:
+      'Census 2011 distilled — the 1901–2011 arc, state splits, sex ratio, workforce participation, density and growth.',
+    accent: '#f97316',
+    icon: 'landmark',
     status: 'active',
   },
 ]
