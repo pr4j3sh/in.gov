@@ -735,3 +735,84 @@ body {
     linear-gradient(0deg, transparent 0 68%, rgba(239, 68, 68, 0.05) 68%, transparent 69%);
   mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 45%, transparent 100%);
 }
+
+/* ================= SECTOR 03 — ENERGY (urja thermistor) ================= */
+[data-domain="energy"] {
+  --accent: #facc15;
+  --accent-2: #fde047;
+  --accent-soft: rgba(250, 204, 21, 0.14);
+  --accent-glow: rgba(250, 204, 21, 0.4);
+}
+[data-domain="energy"] .glow-text {
+  text-shadow: 0 0 16px rgba(250, 204, 21, 0.55), 0 0 70px rgba(253, 224, 71, 0.35);
+}
+[data-domain="energy"] .hud-panel::before,
+[data-domain="energy"] .hud-panel::after,
+[data-domain="energy"] .hud-panel > .hud-corners::before,
+[data-domain="energy"] .hud-panel > .hud-corners::after {
+  border-color: #facc15;
+}
+.urja-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1150px 650px at 78% -15%, rgba(250, 204, 21, 0.14), transparent 60%),
+    radial-gradient(900px 620px at -12% 108%, rgba(253, 224, 71, 0.1), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(180, 83, 9, 0.13), transparent 60%),
+    var(--color-abyss);
+}
+.urja-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 88px,
+      rgba(250, 204, 21, 0.032) 88px,
+      rgba(250, 204, 21, 0.032) 90px
+    );
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 45%, transparent 100%);
+}
+
+/* ================= SECTOR 08 — BUDGET & FINMIN (koshakar) ================= */
+[data-domain="budgetfinmin"] {
+  --accent: #818cf8;
+  --accent-2: #c084fc;
+  --accent-soft: rgba(129, 140, 248, 0.14);
+  --accent-glow: rgba(129, 140, 248, 0.42);
+}
+[data-domain="budgetfinmin"] .glow-text {
+  text-shadow: 0 0 16px rgba(129, 140, 248, 0.55), 0 0 70px rgba(192, 132, 252, 0.35);
+}
+[data-domain="budgetfinmin"] .hud-panel::before,
+[data-domain="budgetfinmin"] .hud-panel::after,
+[data-domain="budgetfinmin"] .hud-panel > .hud-corners::before,
+[data-domain="budgetfinmin"] .hud-panel > .hud-corners::after {
+  border-color: #818cf8;
+}
+.koshakar-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(1150px 650px at 78% -15%, rgba(129, 140, 248, 0.16), transparent 60%),
+    radial-gradient(900px 620px at -12% 108%, rgba(192, 132, 252, 0.13), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(99, 102, 241, 0.13), transparent 60%),
+    var(--color-abyss);
+}
+.koshakar-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0px,
+    transparent 46px,
+    rgba(129, 140, 248, 0.04) 46px,
+    rgba(129, 140, 248, 0.04) 47px
+  );
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 35%, black 45%, transparent 100%);
+}

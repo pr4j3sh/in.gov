@@ -2,7 +2,7 @@
 
 India's open government data, visualized.
 
-Live sectors: Agriculture · Economy · Weather & Rainfall · Crime & Order · Population · Health · Trade · Railways.
+**All 10 sectors online.** Agriculture · Economy · Energy · Weather & Rainfall · Trade · Railways · Crime & Order · Population · Health · Budget & FinMin.
 
 ## Quick start
 

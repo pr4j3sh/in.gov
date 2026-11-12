@@ -15,6 +15,8 @@ const NAV = [
   { href: '/d/health', label: 'HEALTH' },
   { href: '/d/trade', label: 'TRADE' },
   { href: '/d/railways', label: 'RAILWAYS' },
+  { href: '/d/energy', label: 'ENERGY' },
+  { href: '/d/budget', label: 'BUDGET' },
 ]
 
 function useISTClock() {
@@ -62,7 +64,7 @@ export function NavBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-sm px-2 py-1.5 font-mono text-[9px] tracking-[0.16em] transition-colors ${
+                className={`rounded-sm px-1.5 py-1.5 font-mono text-[8px] tracking-[0.12em] transition-colors ${
                   active
                     ? 'bg-accent-soft text-accent'
                     : 'text-text-dim hover:text-text'

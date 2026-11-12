@@ -44,10 +44,10 @@ export const DOMAINS: Domain[] = [
     title: 'Energy',
     tagline: 'Power grid telemetry',
     description:
-      'Generation and consumption by source — thermal, hydro, solar, wind — across states and regions.',
-    accent: '#fde047',
+      '1,830 BU FY25 (+5.2%) · 25.5% non-fossil share · nuclear decade +35% · solar FY23 leaderboard.',
+    accent: '#facc15',
     icon: 'bolt',
-    status: 'standby',
+    status: 'active',
   },
   {
     slug: 'weather',
@@ -104,10 +104,10 @@ export const DOMAINS: Domain[] = [
     title: 'Budget & FinMin',
     tagline: 'Where every rupee flows',
     description:
-      'Union budget expenditure, receipts and scheme-wise allocations — open books, real time.',
-    accent: '#c4b5fd',
+      '₹20.56 L Cr GST FY25 (+10%) · direct tax mix 56/44 · ₹3.27 L Cr Gender Budget FY25 · disinvestment fading.',
+    accent: '#818cf8',
     icon: 'bank',
-    status: 'standby',
+    status: 'active',
   },
   {
     slug: 'crime',
