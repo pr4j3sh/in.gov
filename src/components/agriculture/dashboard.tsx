@@ -24,11 +24,10 @@ import {
   TickerSkeleton,
 } from "@/components/hud/skeleton";
 import { NeonChart } from "@/components/charts/neon-chart";
-import { formatCompact, formatINR, isoToHuman } from "@/lib/format";
+import { formatCompact, formatINR, isoToHuman, escapeHtml } from "@/lib/format";
 import {
   AMBER_BAR,
   GREEN_BAR,
-  MONO_FONT,
   categoryAxis,
   glowTooltip,
   monoLabel,
@@ -81,7 +80,8 @@ export function AgricultureDashboard() {
   }, [query]);
 
   useEffect(() => {
-    load(state, commodity, debouncedQ);
+    const t = setTimeout(() => { void load(state, commodity, debouncedQ); }, 0);
+    return () => clearTimeout(t);
   }, [state, commodity, debouncedQ, load]);
 
   const loading = facetLoading || (!hasLoaded && !error);
@@ -111,7 +111,7 @@ export function AgricultureDashboard() {
         formatter: (params: Array<{ name: string; value: number; dataIndex: number }>) => {
           const p = params[0];
           const row = [...data.byCommodity].reverse()[p.dataIndex];
-          return `<b style="color:#34d399">${p.name}</b><br/>markets quoting&nbsp;&nbsp;: <b>${p.value}</b><br/>avg modal price&nbsp;: ${formatINR(row.avgModal)}<br/>quote range&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${formatINR(row.min)} – ${formatINR(row.max)}`;
+          return `<b style="color:#34d399">${escapeHtml(p.name)}</b><br/>markets quoting&nbsp;&nbsp;: <b>${p.value}</b><br/>avg modal price&nbsp;: ${formatINR(row.avgModal)}<br/>quote range&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${formatINR(row.min)} – ${formatINR(row.max)}`;
         },
       },
       xAxis: valueAxis(),
@@ -142,7 +142,7 @@ export function AgricultureDashboard() {
         formatter: (params: Array<{ name: string; value: number }>) => {
           const p = params[0];
           const row = rows.find((r) => r.state === p.name);
-          return `<b style="color:#fbbf24">${p.name}</b><br/>avg modal price&nbsp;: <b>${formatINR(p.value)}</b> / quintal<br/>markets quoting&nbsp;&nbsp;: <b>${row?.markets ?? 0}</b>`;
+          return `<b style="color:#fbbf24">${escapeHtml(p.name)}</b><br/>avg modal price&nbsp;: <b>${formatINR(p.value)}</b> / quintal<br/>markets quoting&nbsp;&nbsp;: <b>${row?.markets ?? 0}</b>`;
         },
       },
       xAxis: categoryAxis(
@@ -254,7 +254,7 @@ export function AgricultureDashboard() {
             <StatTile
               label="Commodities Tracked"
               value={data.summary.commodities}
-              hint="Distinct items on today's ticker"
+              hint="Distinct items on today&rsquo;s ticker"
               tone="amber"
             />
             <StatTile

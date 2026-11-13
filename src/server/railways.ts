@@ -1,5 +1,6 @@
 import { yoy, coalLatest, type RailwaysResponse, type FreightRow, type TrainTypeRow, type CoalFreightRow } from '@/lib/railways'
 import railwaysSnapshot from '@/lib/snapshots/railways.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num, ogdStr as str } from '@/server/ogd'
 
 const RES = {
   freight: '4cb9673d-44e5-476b-8faf-47196db99bf8',
@@ -7,28 +8,8 @@ const RES = {
   coal: '8002f953-737e-4e88-b593-b52ea512329f',
 } as const
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000
-let liveCache: RailwaysResponse | null = null
+const liveCache = ttlCache<RailwaysResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const s = String(v).trim()
-  if (!s || s.toUpperCase() === 'NA') return null
-  const n = Number(s.replace(/[^0-9.\-]/g, ''))
-  return Number.isFinite(n) ? n : null
-}
-const str = (v: unknown) => (v == null ? '' : String(v).trim())
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const url = new URL(`https://api.data.gov.in/resource/${id}`)
-  url.searchParams.set('api-key', apiKey)
-  url.searchParams.set('format', 'json')
-  url.searchParams.set('limit', '5000')
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-  const d = (await res.json()) as { status: string; records: Record<string, unknown>[] }
-  if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-  return d.records
-}
 
 function parseFreight(records: Record<string, unknown>[]): FreightRow[] {
   return records.map((r) => ({
@@ -76,20 +57,22 @@ type SnapshotShape = { freight: FreightRow[]; trains: TrainTypeRow[]; coal: Coal
 
 export async function getRailwaysData(): Promise<RailwaysResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
   if (apiKey) {
     try {
       const [freightRaw, trainsRaw, coalRaw] = await Promise.all([
-        fetchAll(apiKey, RES.freight),
-        fetchAll(apiKey, RES.trains),
-        fetchAll(apiKey, RES.coal),
+        fetchOgdRecords(apiKey, RES.freight),
+        fetchOgdRecords(apiKey, RES.trains),
+        fetchOgdRecords(apiKey, RES.coal),
       ])
       const freight = parseFreight(freightRaw)
       const trains = parseTrains(trainsRaw)
       const coal = parseCoal(coalRaw)
       if (freight.length && trains.length && coal.length) {
-        liveCache = buildResponse('live', freight, trains, coal)
-        return liveCache
+        const resp = buildResponse('live', freight, trains, coal)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

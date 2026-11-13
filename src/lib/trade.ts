@@ -21,12 +21,6 @@ export interface TradeResponse {
   chemicalsTotal: number | null
 }
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim())
-  return Number.isFinite(n) ? n : null
-}
-
 export function deltaBalance(rows: TradeBalanceRow[]): number | null {
   if (rows.length < 2) return null
   const [a, b] = [rows[rows.length - 2], rows[rows.length - 1]]

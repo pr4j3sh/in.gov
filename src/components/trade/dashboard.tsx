@@ -7,14 +7,13 @@ import { Chip } from '@/components/hud/chip'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
 import { SourceLink } from '@/components/hud/source-link'
 import { StatusPill } from '@/components/hud/status-pill'
-import { ChartSkeleton, StatTileSkeleton } from '@/components/hud/skeleton'
+import { ChartSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
 import { MONO_FONT, GOLD_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import { fossilChemBars } from '@/lib/trade'
 import type { TradeResponse } from '@/lib/trade'
+import { escapeHtml } from '@/lib/format'
 
-const inr = (n: number | null) => (n == null ? '—' : `${n >= 0 ? '' : '−'}$${Math.abs(n).toFixed(1)}B`)
-const inCr = (n: number | null) => (n == null ? '—' : `₹${n.toLocaleString('en-IN')} Cr`)
 
 export function TradeDashboard() {
   const [data, setData] = useState<TradeResponse | null>(null)
@@ -37,7 +36,10 @@ export function TradeDashboard() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
+  }, [load])
 
   const loading = syncing || !hasLoaded
 
@@ -48,7 +50,7 @@ export function TradeDashboard() {
       tooltip: {
         ...glowTooltip('rgba(232,121,249,0.45)', '#fae8ff', { color: 'rgba(232,121,249,0.09)' }),
         formatter: (params: Array<{ name: string; value: number | null }>) =>
-          `<b style="color:#e879f9">${params[0].name}</b><br/>merchandise balance: <b>${params[0].value == null ? '—' : `${params[0].value >= 0 ? '+' : ''}$${params[0].value.toFixed(1)}B`}</b>`,
+          `<b style="color:#e879f9">${escapeHtml(params[0].name)}</b><br/>merchandise balance: <b>${params[0].value == null ? '—' : `${params[0].value >= 0 ? '+' : ''}$${params[0].value.toFixed(1)}B`}</b>`,
       },
       xAxis: categoryAxis(data.balance.map((r) => r.year)),
       yAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${v >= 0 ? '' : ''}${v}B` }) }),
@@ -100,7 +102,7 @@ export function TradeDashboard() {
       tooltip: {
         ...glowTooltip('rgba(232,121,249,0.45)', '#fae8ff', { color: 'rgba(232,121,249,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#e879f9">${params[0].name}</b><br/>FY25 exports: <b>${params[0].value.toLocaleString('en-IN')} ₹ Cr</b>`,
+          `<b style="color:#e879f9">${escapeHtml(params[0].name)}</b><br/>FY25 exports: <b>${params[0].value.toLocaleString('en-IN')} ₹ Cr</b>`,
       },
       xAxis: valueAxis({ axisLabel: monoLabel() }),
       yAxis: categoryAxis(top.map((r) => r.commodity), { width: 190, overflow: 'truncate' as const }),
@@ -123,9 +125,6 @@ export function TradeDashboard() {
       </HudPanel>
     )
   }
-
-  const euLatest = data?.eu[data.eu.length - 1]
-  const delta = data?.summary.deltaVs2024 ?? null
 
   return (
     <div>

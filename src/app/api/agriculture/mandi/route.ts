@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       },
     })
   } catch (err) {
-    console.error('[api/agriculture/mandi] error:', err)
+    console.error('[api/agriculture/mandi] error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Failed to load mandi data' }, { status: 502 })
   }
 }

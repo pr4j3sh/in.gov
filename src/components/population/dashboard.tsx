@@ -12,8 +12,8 @@ import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
 import { MONO_FONT, ROSE_BAR, GOLD_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import type { CensusResponse } from '@/lib/census'
+import { escapeHtml } from '@/lib/format'
 
-const inr = (n: number | null) => (n == null ? '—' : n.toLocaleString('en-IN'))
 const cr = (n: number | null, d = 2) => (n == null ? '—' : (n / 1e7).toFixed(d) + ' Cr')
 
 export function PopulationDashboard() {
@@ -38,7 +38,10 @@ export function PopulationDashboard() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
+  }, [load])
 
   const loading = syncing || !hasLoaded
 
@@ -50,7 +53,7 @@ export function PopulationDashboard() {
       tooltip: {
         ...glowTooltip('rgba(249,115,22,0.45)', '#ffedd5', { color: 'rgba(249,115,22,0.09)' }),
         formatter: (params: Array<{ seriesName: string; name: string; value: number | null }>) =>
-          `<b style="color:#f97316">${params[0].name}</b><br/>${params.map((p) => `${p.seriesName}: <b>${p.value == null ? '—' : p.value.toLocaleString('en-IN') + ' M'}</b>`).join('<br/>')}`,
+          `<b style="color:#f97316">${escapeHtml(params[0].name)}</b><br/>${params.map((p) => `${escapeHtml(p.seriesName)}: <b>${p.value == null ? '—' : p.value.toLocaleString('en-IN') + ' M'}</b>`).join('<br/>')}`,
       },
       xAxis: categoryAxis(s.map((p) => String(p.year)), { interval: 0, rotate: 0, width: 34, overflow: 'truncate' as const }),
       yAxis: [
@@ -101,7 +104,7 @@ export function PopulationDashboard() {
       tooltip: {
         ...glowTooltip('rgba(249,115,22,0.45)', '#ffedd5', { color: 'rgba(249,115,22,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#f97316">${params[0].name}</b><br/>population 2011: <b>${params[0].value.toLocaleString('en-IN')}</b>`,
+          `<b style="color:#f97316">${escapeHtml(params[0].name)}</b><br/>population 2011: <b>${params[0].value.toLocaleString('en-IN')}</b>`,
       },
       xAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${(v / 1e7).toFixed(0)}Cr` }) }),
       yAxis: categoryAxis(top.map((r) => r.name), { width: 130, overflow: 'truncate' as const }),
@@ -117,7 +120,7 @@ export function PopulationDashboard() {
       tooltip: {
         ...glowTooltip('rgba(251,113,133,0.45)', '#fecdd3', { color: 'rgba(251,113,133,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#fb7185">${params[0].name}</b><br/>${params[0].value} females per 1,000 males`,
+          `<b style="color:#fb7185">${escapeHtml(params[0].name)}</b><br/>${params[0].value} females per 1,000 males`,
       },
       xAxis: valueAxis({ axisLabel: monoLabel(), min: 600, max: 1100 }),
       yAxis: categoryAxis(worst.map((r) => r.name), { width: 120, overflow: 'truncate' as const }),
@@ -149,7 +152,6 @@ export function PopulationDashboard() {
   const rows = useMemo(() => {
     if (!data) return []
     const q = query.trim().toLowerCase()
-    const india = data.states.find((s) => /^india$/i.test(s.name))
     const states = data.states.filter((s) => !/^india$/i.test(s.name) && s.population2011 != null)
     const workers = new Map(data.workers.map((w) => [w.name, w]))
     const sex = new Map(data.sexRatio.map((s) => [s.name, s]))

@@ -3,16 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CloudSun, CloudRain, ShieldCheck, CircleCheck, CircleSlash } from 'lucide-react'
 import { HudPanel } from '@/components/hud/hud-panel'
-import { Chip } from '@/components/hud/chip'
 import { HudSearch } from '@/components/hud/hud-search'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
 import { SourceLink } from '@/components/hud/source-link'
 import { StatusPill } from '@/components/hud/status-pill'
-import { ChartSkeleton, StatTileSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
+import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
-import { MONO_FONT, MOVING_AVG_LINE, SKY_BAR, TEAL_BAR, INDIGO_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
+import { MOVING_AVG_LINE, SKY_BAR, TEAL_BAR, INDIGO_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import { movingAverage } from '@/lib/weather'
 import type { WeatherResponse } from '@/lib/weather'
+import { escapeHtml } from '@/lib/format'
 
 type SeriesKey = 'allIndia' | 'neIndia'
 
@@ -44,7 +44,10 @@ export function WeatherDashboard() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
+  }, [load])
 
   const loading = syncing || !hasLoaded
   const cmzLatest = data?.cmz?.[data.cmz.length - 1] ?? null
@@ -64,7 +67,7 @@ export function WeatherDashboard() {
             if (p.seriesName === '10-yr avg') return `<span style="color:#2dd4bf">10-yr MA</span>&nbsp;&nbsp;: <b>${p.value?.toFixed(1) ?? '—'} mm</b>`
             return `<span style="color:#38bdf8">Monsoon total</span>&nbsp;: <b>${p.value?.toFixed(1) ?? '—'} mm</b>`
           })
-          return `<b style="color:#38bdf8">${params[0].name}</b><br/>${lines.join('<br/>')}`
+          return `<b style="color:#38bdf8">${escapeHtml(params[0].name)}</b><br/>${lines.join('<br/>')}`
         },
       },
       xAxis: categoryAxis(labels, { interval: 11, rotate: 0, fontSize: 8 }),
@@ -116,7 +119,7 @@ export function WeatherDashboard() {
       tooltip: {
         ...glowTooltip('rgba(56,189,248,0.4)', '#e0f2fe', { color: 'rgba(56,189,248,0.08)' }),
         formatter: (params: Array<{ seriesName: string; name: string; value: number }>) =>
-          `<b style="color:#38bdf8">${params[0].name}</b><br/>${params.map((p) => `${p.seriesName}: <b>${p.value.toLocaleString('en-IN')}</b>`).join('<br/>')}`,
+          `<b style="color:#38bdf8">${escapeHtml(params[0].name)}</b><br/>${params.map((p) => `${escapeHtml(p.seriesName)}: <b>${p.value.toLocaleString('en-IN')}</b>`).join('<br/>')}`,
       },
       xAxis: categoryAxis(data.heavy.map((r) => String(r.year))),
       yAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${(v / 1000).toFixed(0)}k` }) }),

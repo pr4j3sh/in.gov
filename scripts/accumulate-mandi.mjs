@@ -1,7 +1,7 @@
 // Append today's mandi insights to a JSONL history file.
 // One line per day — tiny; keeps a running record for trend analysis without raw-data bloat.
 // Usage: node scripts/accumulate-mandi.mjs
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs'
+import { readFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs'
 
 const env = readFileSync('.env.local', 'utf8')
 const key = env.match(/^DATA_GOV_IN_API_KEY=(.+)$/m)?.[1]?.trim()

@@ -20,14 +20,6 @@ export interface RailwaysResponse {
   coal: CoalFreightRow[]
 }
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const s = String(v).trim()
-  if (!s || s.toUpperCase() === 'NA') return null
-  const n = Number(s.replace(/[^0-9.\-]/g, ''))
-  return Number.isFinite(n) ? n : null
-}
-
 export function yoy(rows: FreightRow[], col: 'loadingMnt' | 'revenueCrore'): number | null {
   if (rows.length < 2) return null
   const a = rows[rows.length - 2][col]

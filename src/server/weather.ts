@@ -1,5 +1,6 @@
 import { latestJjasTotal, averageJjas, cmzScorecard, type WeatherResponse, type JjasPoint, type CmzRow, type HeavyRow, type NormalRow } from '@/lib/weather'
 import weatherSnapshot from '@/lib/snapshots/weather.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num } from '@/server/ogd'
 
 const RES = {
   allIndia: '7m2qruwxuxy2w2ov38jqs2zjscwncovc',
@@ -9,42 +10,10 @@ const RES = {
   cmz: '017d5121-149b-4ac9-9c2c-f0b2d82a22a0',
   normals: 'f9adeeab-582f-40d0-ad99-4405a074a742',
 } as const
-const PAGE = 5000
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000 // 6h — archived prints; no rush
 
-let liveCache: WeatherResponse | null = null
+const liveCache = ttlCache<WeatherResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim())
-  return Number.isFinite(n) ? n : null
-}
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const firstUrl = new URL(`https://api.data.gov.in/resource/${id}`)
-  firstUrl.searchParams.set('api-key', apiKey)
-  firstUrl.searchParams.set('format', 'json')
-  firstUrl.searchParams.set('offset', '0')
-  firstUrl.searchParams.set('limit', String(PAGE))
-  const first = await fetch(firstUrl, { cache: 'no-store' })
-  if (!first.ok) throw new Error(`data.gov.in HTTP ${first.status}`)
-  const firstData = (await first.json()) as { status: string; total: string | number; records: Record<string, unknown>[] }
-  if (firstData.status !== 'ok') throw new Error(`data.gov.in status=${firstData.status}`)
-  const total = Number(firstData.total)
-  const pages = [firstData]
-  for (let o = PAGE; o < total; o += PAGE) {
-    const url = new URL(`https://api.data.gov.in/resource/${id}`)
-    url.searchParams.set('api-key', apiKey)
-    url.searchParams.set('format', 'json')
-    url.searchParams.set('offset', String(o))
-    url.searchParams.set('limit', String(PAGE))
-    const res = await fetch(url, { cache: 'no-store' })
-    if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-    const data = (await res.json()) as typeof firstData
-    pages.push(data)
-  }
-  return pages.flatMap((p) => p.records)
-}
 
 function parseJjasFromOgd(records: Record<string, unknown>[], totalField: string): JjasPoint[] {
   return records.map((r) => ({
@@ -59,10 +28,6 @@ function parseAllIndiaFromOgd(records: Record<string, unknown>[]): JjasPoint[] {
     const parts = String(r.year_jun_jul_aug_sep_jun_sep ?? '').split('\t')
     return { year: Number(parts[0]), jun: num(parts[1]), jul: num(parts[2]), aug: num(parts[3]), sep: num(parts[4]), total: num(parts[5]) }
   }).filter((r) => r.year && r.total != null)
-}
-
-const MONTH_NAME_TO_NUM: Record<string, number> = {
-  January: 1, February: 2, March: 3, April: 4, May: 5, June: 6, July: 7, August: 8, September: 9, October: 10, November: 11, December: 12,
 }
 
 function parseCmz(records: Record<string, unknown>[]): CmzRow[] {
@@ -133,16 +98,17 @@ type SnapshotShape = {
 
 export async function getWeatherData(): Promise<WeatherResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache && Date.now() - Number((liveCache as { _t?: number })._t ?? 0) < LIVE_TTL_MS) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
 
   if (apiKey) {
     try {
       const [allIndiaRaw, neRaw, cmzRaw, heavyRaw, normalsRaw] = await Promise.all([
-        fetchAll(apiKey, RES.allIndia),
-        fetchAll(apiKey, RES.neIndia),
-        fetchAll(apiKey, RES.cmz),
-        fetchAll(apiKey, RES.heavy),
-        fetchAll(apiKey, RES.normals),
+        fetchOgdRecords(apiKey, RES.allIndia),
+        fetchOgdRecords(apiKey, RES.neIndia),
+        fetchOgdRecords(apiKey, RES.cmz),
+        fetchOgdRecords(apiKey, RES.heavy),
+        fetchOgdRecords(apiKey, RES.normals),
       ])
       const jjasAllIndia = parseAllIndiaFromOgd(allIndiaRaw)
       const jjasNEIndia = parseJjasFromOgd(neRaw, 'jn_sp')
@@ -150,8 +116,9 @@ export async function getWeatherData(): Promise<WeatherResponse> {
       const cmz = parseCmz(cmzRaw)
       const normals = parseNormals(normalsRaw)
       if (jjasAllIndia.length && jjasNEIndia.length && normals.length) {
-        liveCache = Object.assign(buildResponse('live', jjasAllIndia, jjasNEIndia, cmz, heavy, heavyAverage, normals), { _t: Date.now() }) as unknown as WeatherResponse
-        return liveCache
+        const resp = buildResponse('live', jjasAllIndia, jjasNEIndia, cmz, heavy, heavyAverage, normals)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

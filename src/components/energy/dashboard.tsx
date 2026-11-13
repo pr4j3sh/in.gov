@@ -7,12 +7,11 @@ import { Chip } from '@/components/hud/chip'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
 import { SourceLink } from '@/components/hud/source-link'
 import { StatusPill } from '@/components/hud/status-pill'
-import { ChartSkeleton, StatTileSkeleton } from '@/components/hud/skeleton'
+import { ChartSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
 import { MONO_FONT, GREEN_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import type { EnergyResponse } from '@/lib/energy'
-
-const inr = (n: number | null, unit = '') => (n == null ? '—' : `${n.toLocaleString('en-IN')}${unit}`)
+import { escapeHtml } from '@/lib/format'
 
 export function EnergyDashboard() {
   const [data, setData] = useState<EnergyResponse | null>(null)
@@ -35,7 +34,10 @@ export function EnergyDashboard() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
+  }, [load])
 
   const loading = syncing || !hasLoaded
 
@@ -43,7 +45,6 @@ export function EnergyDashboard() {
     if (!data) return null
     const thermal = data.mix.find((m) => /thermal/i.test(m.source))
     const nonFossil = data.mix.find((m) => /non-fossil/i.test(m.source))
-    const total = data.mix.find((m) => /total/i.test(m.source))
     const fys = ['FY22-23', 'FY23-24', 'FY24-25']
     const t = [thermal?.fy2023 ?? 0, thermal?.fy2024 ?? 0, thermal?.fy2025 ?? 0]
     const n = [nonFossil?.fy2023 ?? 0, nonFossil?.fy2024 ?? 0, nonFossil?.fy2025 ?? 0]
@@ -52,8 +53,8 @@ export function EnergyDashboard() {
       tooltip: {
         ...glowTooltip('rgba(250,204,21,0.45)', '#fef9c3', { color: 'rgba(250,204,21,0.09)' }),
         formatter: (params: Array<{ seriesName: string; name: string; value: number }>) =>
-          `<b style="color:#facc15">${params[0].name}</b><br/>${params.map((p) =>
-            `${p.seriesName}: <b>${p.value.toLocaleString('en-IN')} BU</b>`).join('<br/>')}`,
+          `<b style="color:#facc15">${escapeHtml(params[0].name)}</b><br/>${params.map((p) =>
+            `${escapeHtml(p.seriesName)}: <b>${p.value.toLocaleString('en-IN')} BU</b>`).join('<br/>')}`,
       },
       legend: { show: true, top: 0, right: 0, textStyle: { color: '#fde68a', fontFamily: MONO_FONT, fontSize: 9 }, itemWidth: 14, itemHeight: 10 },
       xAxis: categoryAxis(fys),
@@ -72,7 +73,7 @@ export function EnergyDashboard() {
       tooltip: {
         ...glowTooltip('rgba(250,204,21,0.45)', '#fef9c3', { color: 'rgba(250,204,21,0.09)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#facc15">${params[0].name}</b><br/>nuclear generation: <b>${params[0].value.toLocaleString('en-IN')} MU</b>`,
+          `<b style="color:#facc15">${escapeHtml(params[0].name)}</b><br/>nuclear generation: <b>${params[0].value.toLocaleString('en-IN')} MU</b>`,
       },
       xAxis: categoryAxis(data.nuclear.map((r) => r.year), { interval: 0 }),
       yAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${(v / 1000).toFixed(0)}k` }) }),
@@ -106,7 +107,7 @@ export function EnergyDashboard() {
       tooltip: {
         ...glowTooltip('rgba(250,204,21,0.45)', '#fef9c3', { color: 'rgba(250,204,21,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#facc15">${params[0].name}</b><br/>solar generation 2022-23: <b>${params[0].value.toLocaleString('en-IN')} GWh</b>`,
+          `<b style="color:#facc15">${escapeHtml(params[0].name)}</b><br/>solar generation 2022-23: <b>${params[0].value.toLocaleString('en-IN')} GWh</b>`,
       },
       xAxis: valueAxis({ axisLabel: monoLabel() }),
       yAxis: categoryAxis(top.map((r) => r.state), { width: 140, overflow: 'truncate' as const }),

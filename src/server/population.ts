@@ -1,11 +1,7 @@
 import {
   populationOfIndia,
-  topStates,
   densestState,
   largestState,
-  sexRatioBoard,
-  workersTop,
-  workersBottom,
   type CensusResponse,
   type StateRow,
   type SexRatioRow,
@@ -13,6 +9,7 @@ import {
   type CensusSeriesPoint,
 } from '@/lib/census'
 import censusSnapshot from '@/lib/snapshots/census.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num, ogdStr as str } from '@/server/ogd'
 
 const RES = {
   series: 'e00c5fab-ad0a-420a-b1e3-d499b244c99f',
@@ -21,26 +18,8 @@ const RES = {
   workers: '64d4bcb5-945d-48e8-84ec-995558785336',
 } as const
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000
-let liveCache: CensusResponse | null = null
+const liveCache = ttlCache<CensusResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim())
-  return Number.isFinite(n) ? n : null
-}
-const str = (v: unknown) => (v == null ? '' : String(v).trim())
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const url = new URL(`https://api.data.gov.in/resource/${id}`)
-  url.searchParams.set('api-key', apiKey)
-  url.searchParams.set('format', 'json')
-  url.searchParams.set('limit', '5000')
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-  const d = (await res.json()) as { status: string; records: Record<string, unknown>[] }
-  if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-  return d.records
-}
 
 type RawSeries = CensusSeriesPoint
 
@@ -118,22 +97,24 @@ type SnapshotShape = {
 
 export async function getPopulationData(): Promise<CensusResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
   if (apiKey) {
     try {
       const [seriesRaw, statesRaw, sexRatioRaw, workersRaw] = await Promise.all([
-        fetchAll(apiKey, RES.series),
-        fetchAll(apiKey, RES.states),
-        fetchAll(apiKey, RES.sexRatio),
-        fetchAll(apiKey, RES.workers),
+        fetchOgdRecords(apiKey, RES.series),
+        fetchOgdRecords(apiKey, RES.states),
+        fetchOgdRecords(apiKey, RES.sexRatio),
+        fetchOgdRecords(apiKey, RES.workers),
       ])
       const series = parseSeries(seriesRaw)
       const states = parseStates(statesRaw)
       const sexRatio = parseSexRatio(sexRatioRaw)
       const workers = parseWorkers(workersRaw)
       if (series.length && states.length && sexRatio.length) {
-        liveCache = buildResponse('live', series, states, sexRatio, workers)
-        return liveCache
+        const resp = buildResponse('live', series, states, sexRatio, workers)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

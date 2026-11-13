@@ -8,10 +8,11 @@ import { HudSearch } from '@/components/hud/hud-search'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
 import { SourceLink } from '@/components/hud/source-link'
 import { StatusPill } from '@/components/hud/status-pill'
-import { ChartSkeleton, StatTileSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
+import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
-import { MONO_FONT, TEAL_BAR, ROSE_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
+import { MONO_FONT, ROSE_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import type { HealthResponse } from '@/lib/health'
+import { escapeHtml } from '@/lib/format'
 
 const inr = (n: number | null) => (n == null ? '—' : n.toLocaleString('en-IN'))
 
@@ -37,7 +38,10 @@ export function HealthDashboard() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
+  }, [load])
 
   const loading = syncing || !hasLoaded
 
@@ -50,7 +54,7 @@ export function HealthDashboard() {
       tooltip: {
         ...glowTooltip('rgba(45,212,191,0.45)', '#ccfbf1', { color: 'rgba(45,212,191,0.09)' }),
         formatter: (params: Array<{ name: string; value: number | null }>) =>
-          `<b style="color:#2dd4bf">${params[0].name}</b><br/>Full Immunization: <b>${params[0].value?.toFixed(1) ?? '—'}%</b>`,
+          `<b style="color:#2dd4bf">${escapeHtml(params[0].name)}</b><br/>Full Immunization: <b>${params[0].value?.toFixed(1) ?? '—'}%</b>`,
       },
       xAxis: categoryAxis(labels, { interval: 0 }),
       yAxis: valueAxis({ min: 88, max: 100, axisLabel: monoLabel({ formatter: (v: number) => `${v}%` }) }),
@@ -88,7 +92,7 @@ export function HealthDashboard() {
       tooltip: {
         ...glowTooltip('rgba(251,113,133,0.4)', '#fecdd3', { color: 'rgba(251,113,133,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#fb7185">${params[0].name}</b><br/>FIC 2023-24: <b>${params[0].value.toFixed(1)}%</b>`,
+          `<b style="color:#fb7185">${escapeHtml(params[0].name)}</b><br/>FIC 2023-24: <b>${params[0].value.toFixed(1)}%</b>`,
       },
       xAxis: valueAxis({ min: 0, max: 110, axisLabel: monoLabel({ formatter: (v: number) => `${v}%` }) }),
       yAxis: categoryAxis(worst.map((r) => r.state), { width: 150, overflow: 'truncate' as const }),

@@ -8,47 +8,30 @@ import {
   coverageByState,
 } from '@/lib/mandi-insights'
 import mandiSnapshot from '@/lib/snapshots/mandi.json'
-import type { MandiResponse } from '@/lib/types'
+import { fetchOgdRecords, ttlCache } from '@/server/ogd'
 
 // Lightweight re-fetch — same endpoint serves one day; cached in-process.
-// We re-use the main mandi page cache when it exists.
 const RES = '9ef84268-d588-465a-a308-a864a43d0070'
-const PAGE = 5000
 const LIVE_TTL_MS = 30 * 60 * 1000
-let cache: { records: Record<string, unknown>[]; fetchedAt: number } | null = null
+const cache = ttlCache<Record<string, unknown>[]>(LIVE_TTL_MS)
 
-async function loadRecords(): Promise<Array<Record<string, unknown>>> {
+async function loadRecords(): Promise<{ records: Record<string, unknown>[]; source: 'live' | 'snapshot' }> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (cache && Date.now() - cache.fetchedAt < LIVE_TTL_MS) return cache.records
+  const cached = cache.get()
+  if (cached) return { records: cached, source: 'live' }
 
   if (apiKey) {
     try {
-      const fetchPage = async (offset: number) => {
-        const url = new URL(`https://api.data.gov.in/resource/${RES}`)
-        url.searchParams.set('api-key', apiKey)
-        url.searchParams.set('format', 'json')
-        url.searchParams.set('offset', String(offset))
-        url.searchParams.set('limit', String(PAGE))
-        const res = await fetch(url, { cache: 'no-store' })
-        if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-        const d = (await res.json()) as { status: string; total: string | number; records: Record<string, unknown>[] }
-        if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-        return d
-      }
-      const first = await fetchPage(0)
-      const total = Number(first.total)
-      const pageCount = Math.min(8, Math.ceil(total / PAGE))
-      const rest = await Promise.all(Array.from({ length: pageCount - 1 }, (_, i) => fetchPage((i + 1) * PAGE)))
-      const records = [first, ...rest].flatMap((p) => p.records)
-      cache = { records, fetchedAt: Date.now() }
-      return records
+      const records = await fetchOgdRecords(apiKey, RES)
+      cache.set(records)
+      return { records, source: 'live' }
     } catch (err) {
-      console.error('[insights] live fetch failed:', err instanceof Error ? err.message : err)
+      console.error('[insights] live fetch failed, falling back to snapshot:', err instanceof Error ? err.message : err)
     }
   }
   // Fallback to bundled snapshot
   const snap = mandiSnapshot as unknown as { records: Record<string, unknown>[] }
-  return snap.records
+  return { records: snap.records, source: 'snapshot' }
 }
 
 const num = (v: unknown) => { const n = Number(String(v ?? '0').trim()); return Number.isFinite(n) ? n : 0 }
@@ -56,7 +39,7 @@ const str = (v: unknown) => (v == null ? '' : String(v).trim())
 
 export async function GET() {
   try {
-    const raw = await loadRecords()
+    const { records: raw, source } = await loadRecords()
     const records = raw.map((r) => ({
       state: str(r.state),
       district: str(r.district),
@@ -79,7 +62,7 @@ export async function GET() {
       coverage: coverageByState(records),
     }
     return NextResponse.json(insights, {
-      headers: { 'x-data-source': 'live', 'cache-control': 'public, s-maxage=1800, stale-while-revalidate=3600' },
+      headers: { 'x-data-source': source, 'cache-control': 'public, s-maxage=1800, stale-while-revalidate=3600' },
     })
   } catch (err) {
     console.error('[api/agriculture/insights] error:', err instanceof Error ? err.message : err)

@@ -14,13 +14,11 @@ export function NeonChart({
   className?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const optionRef = useRef(option)
-  optionRef.current = option
 
   useEffect(() => {
     if (!ref.current) return
     const chart = echarts.init(ref.current, undefined, { renderer: 'canvas' })
-    chart.setOption(optionRef.current, true)
+    chart.setOption(option, true)
     const observer = new ResizeObserver(() => chart.resize())
     observer.observe(ref.current)
     return () => {

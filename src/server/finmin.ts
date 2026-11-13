@@ -1,8 +1,9 @@
 import {
-  gstFullYears, latestGstGrowth, nonCorpShare, genderBudgetDelta,
+  gstFullYears, nonCorpShare, genderBudgetDelta,
   type FinminResponse, type GstRow, type DirectTaxRow, type BudgetGlanceRow, type GenderBudgetRow, type DisinvestmentRow,
 } from '@/lib/finmin'
 import finminSnapshot from '@/lib/snapshots/finmin.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num, ogdStr as str } from '@/server/ogd'
 
 const RES = {
   gst: 'a880c75a-6e20-419e-b5f6-f551c44e738f',
@@ -12,26 +13,8 @@ const RES = {
   disinvestment: '21876b8e-2ff7-4770-b8db-266b6b63773f',
 } as const
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000
-let liveCache: FinminResponse | null = null
+const liveCache = ttlCache<FinminResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim().replace(/,/g, ''))
-  return Number.isFinite(n) ? n : null
-}
-const str = (v: unknown) => (v == null ? '' : String(v).trim())
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const url = new URL(`https://api.data.gov.in/resource/${id}`)
-  url.searchParams.set('api-key', apiKey)
-  url.searchParams.set('format', 'json')
-  url.searchParams.set('limit', '5000')
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-  const d = (await res.json()) as { status: string; records: Record<string, unknown>[] }
-  if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-  return d.records
-}
 
 function parseGst(records: Record<string, unknown>[]): GstRow[] {
   return records.map((r) => ({ year: str(r._year), amountCr: num(r.amount__in_rs__crore_), growthPct: num(r.percentage_growth) })).filter((r) => r.year)
@@ -90,15 +73,16 @@ type SnapshotShape = { gst: GstRow[]; directTax: DirectTaxRow[]; budget: BudgetG
 
 export async function getFinminData(): Promise<FinminResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
   if (apiKey) {
     try {
       const [gstRaw, dtRaw, budRaw, genRaw, disRaw] = await Promise.all([
-        fetchAll(apiKey, RES.gst),
-        fetchAll(apiKey, RES.directTax),
-        fetchAll(apiKey, RES.budgetGlance),
-        fetchAll(apiKey, RES.genderBudget),
-        fetchAll(apiKey, RES.disinvestment),
+        fetchOgdRecords(apiKey, RES.gst),
+        fetchOgdRecords(apiKey, RES.directTax),
+        fetchOgdRecords(apiKey, RES.budgetGlance),
+        fetchOgdRecords(apiKey, RES.genderBudget),
+        fetchOgdRecords(apiKey, RES.disinvestment),
       ])
       const gst = parseGst(gstRaw)
       const directTax = parseDirectTax(dtRaw)
@@ -106,8 +90,9 @@ export async function getFinminData(): Promise<FinminResponse> {
       const genderBudget = parseGender(genRaw)
       const disinvestment = parseDisinvestment(disRaw)
       if (gst.length && directTax.length && budget.length && genderBudget.length) {
-        liveCache = buildResponse('live', gst, directTax, budget, genderBudget, disinvestment)
-        return liveCache
+        const resp = buildResponse('live', gst, directTax, budget, genderBudget, disinvestment)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

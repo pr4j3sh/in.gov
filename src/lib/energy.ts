@@ -21,12 +21,6 @@ export interface EnergyResponse {
   solar: SolarRow[]
 }
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim().replace(/,/g, ''))
-  return Number.isFinite(n) ? n : null
-}
-
 export function nonFossilShare(mix: MixRow[], fy: 'fy2023' | 'fy2024' | 'fy2025'): number | null {
   const nonFossil = mix.find((m) => /non-fossil/i.test(m.source))
   const total = mix.find((m) => /total/i.test(m.source))

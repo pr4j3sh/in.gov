@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowDownRight, ShieldCheck, BookOpenText, Scale, Landmark } from 'lucide-react'
+import { ArrowDownRight, ShieldCheck, Scale, Landmark } from 'lucide-react'
 import { HudPanel } from '@/components/hud/hud-panel'
 import { Chip } from '@/components/hud/chip'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
@@ -11,6 +11,7 @@ import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
 import { MONO_FONT, ROSE_BAR, GOLD_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import type { CrimeParsed } from '@/lib/crime'
+import { escapeHtml } from '@/lib/format'
 
 type CrimeResponse = CrimeParsed & {
   source: 'archived'
@@ -43,12 +44,12 @@ export function CrimeDashboard() {
   }, [])
 
   useEffect(() => {
-    load()
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
   }, [load])
 
   const loading = syncing || !hasLoaded
-  const total24 = data?.totals.combined2024 ?? null
-  const trend = data?.nationalTrend ?? []
+  const trend = useMemo(() => data?.nationalTrend ?? [], [data])
 
   const funnelChart = useMemo(() => {
     if (trend.length === 0) return null
@@ -61,7 +62,7 @@ export function CrimeDashboard() {
         textStyle: { color: '#fecdd3', fontFamily: MONO_FONT, fontSize: 10 },
         formatter: (params: Array<{ name: string; value: number }>) => {
           const p = params[0]
-          return `<b style="color:#fb7185">${p.name}</b><br/>cognizable crimes: <b>${p.value.toLocaleString('en-IN')}</b>`
+          return `<b style="color:#fb7185">${escapeHtml(p.name)}</b><br/>cognizable crimes: <b>${p.value.toLocaleString('en-IN')}</b>`
         },
       },
       xAxis: {
@@ -93,7 +94,7 @@ export function CrimeDashboard() {
       tooltip: {
         ...glowTooltip('rgba(251,113,133,0.45)', '#fecdd3', { color: 'rgba(251,113,133,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#fb7185">${params[0].name}</b><br/>2024 cases: <b>${params[0].value.toLocaleString('en-IN')}</b>`,
+          `<b style="color:#fb7185">${escapeHtml(params[0].name)}</b><br/>2024 cases: <b>${params[0].value.toLocaleString('en-IN')}</b>`,
       },
       xAxis: valueAxis({ axisLabel: monoLabel() }),
       yAxis: categoryAxis(top.map((h) => h.name), { width: 168, overflow: 'truncate' as const }),
@@ -118,7 +119,7 @@ export function CrimeDashboard() {
         formatter: (params: Array<{ name: string; value: number }>) => {
           const p = params[0]
           const row = [...data.cyber].find((r) => r.city === p.name)
-          return `<b style="color:#fbbf24">${p.name}</b><br/>2024: <b>${p.value.toLocaleString('en-IN')}</b><br/>growth vs 2022: <b>${row?.growthPct == null ? '—' : '+' + row.growthPct + '%'}</b>`
+          return `<b style="color:#fbbf24">${escapeHtml(p.name)}</b><br/>2024: <b>${p.value.toLocaleString('en-IN')}</b><br/>growth vs 2022: <b>${row?.growthPct == null ? '—' : '+' + row.growthPct + '%'}</b>`
         },
       },
       xAxis: valueAxis({ axisLabel: monoLabel() }),
@@ -149,7 +150,6 @@ export function CrimeDashboard() {
   }
 
   const d24 = data?.totals.combined2024
-  const d23 = data?.totals.combined2023
   const deltaPct = data?.totals.combinedDeltaPct
 
   return (

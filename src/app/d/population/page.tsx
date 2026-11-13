@@ -25,10 +25,10 @@ export default function PopulationPage() {
               <ArrowLeft size={12} aria-hidden /> MISSION CONTROL / SECTOR SELECT
             </Link>
             <p className="mt-3 flex w-fit items-center gap-2 font-mono text-[10px] tracking-[0.34em] text-orange-400">
-              <UsersRound size={12} aria-hidden /> SECTOR 10 // JANSANKHYA — THE PEOPLE'S LEDGER
+              <UsersRound size={12} aria-hidden /> SECTOR 10 // JANSANKHYA — THE PEOPLE&rsquo;S LEDGER
             </p>
             <h1 className="mt-2 font-display text-4xl font-bold leading-none tracking-tight text-text sm:text-5xl">
-              THE PEOPLE'S <span className="glow-text text-orange-400">LEDGER</span>
+              THE PEOPLE&rsquo;S <span className="glow-text text-orange-400">LEDGER</span>
             </h1>
           </div>
           <MetaRail

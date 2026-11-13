@@ -42,8 +42,6 @@ async function fetchAll(id) {
   return pages.flatMap((p) => p.records)
 }
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const parseMonth = (m) => { const i = MONTHS.indexOf(String(m).trim()); return i >= 0 ? i + 1 : null }
 
 const allIndiaRaw = await fetchAll(R.allIndia)
 const spRaw = await fetchAll(R.southPeninsula)

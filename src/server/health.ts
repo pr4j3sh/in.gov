@@ -1,6 +1,4 @@
 import {
-  worstStatesByFic,
-  topStatesByFic,
   totalColumn,
   worstVacancyState,
   sortVacanciesByTotal,
@@ -10,6 +8,7 @@ import {
   type VacancyRow,
 } from '@/lib/health'
 import healthSnapshot from '@/lib/snapshots/health.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num, ogdStr as str } from '@/server/ogd'
 
 const RES = {
   ficByState: '808b9b9c-8720-4fe8-8d52-7de613f2c5a3',
@@ -17,26 +16,8 @@ const RES = {
   vacancies: '782c19ad-5833-4745-95b2-31656af47bed',
 } as const
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000
-let liveCache: HealthResponse | null = null
+const liveCache = ttlCache<HealthResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim())
-  return Number.isFinite(n) ? n : null
-}
-const str = (v: unknown) => (v == null ? '' : String(v).trim())
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const url = new URL(`https://api.data.gov.in/resource/${id}`)
-  url.searchParams.set('api-key', apiKey)
-  url.searchParams.set('format', 'json')
-  url.searchParams.set('limit', '5000')
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-  const d = (await res.json()) as { status: string; records: Record<string, unknown>[] }
-  if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-  return d.records
-}
 
 function parseFicByState(records: Record<string, unknown>[]): FicStateRow[] {
   return records.map((r) => ({ state: str(r.state_ut), ficPct: num(r._2023_24) })).filter((r) => r.state)
@@ -85,20 +66,22 @@ type SnapshotShape = { ficByState: FicStateRow[]; ficYearwise: FicYearRow[]; vac
 
 export async function getHealthData(): Promise<HealthResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
   if (apiKey) {
     try {
       const [ficRaw, ficYearsRaw, vacRaw] = await Promise.all([
-        fetchAll(apiKey, RES.ficByState),
-        fetchAll(apiKey, RES.ficYearwise),
-        fetchAll(apiKey, RES.vacancies),
+        fetchOgdRecords(apiKey, RES.ficByState),
+        fetchOgdRecords(apiKey, RES.ficYearwise),
+        fetchOgdRecords(apiKey, RES.vacancies),
       ])
       const ficByState = parseFicByState(ficRaw)
       const ficYearwise = parseFicYearwise(ficYearsRaw)
       const vacancies = parseVacancies(vacRaw)
       if (ficByState.length && ficYearwise.length && vacancies.length) {
-        liveCache = buildResponse('live', ficByState, ficYearwise, vacancies)
-        return liveCache
+        const resp = buildResponse('live', ficByState, ficYearwise, vacancies)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

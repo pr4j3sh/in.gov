@@ -1,5 +1,6 @@
 import { latestEu, type TradeResponse, type TradeBalanceRow, type EuLedgerRow, type ChemExportRow } from '@/lib/trade'
 import tradeSnapshot from '@/lib/snapshots/trade.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num, ogdStr as str } from '@/server/ogd'
 
 const RES = {
   balance: '13fb29e1-29c2-4a0f-a351-f735b59f2dcc',
@@ -7,26 +8,8 @@ const RES = {
   chemicals: '53d18625-f069-47f2-8abc-980dad14b072',
 } as const
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000
-let liveCache: TradeResponse | null = null
+const liveCache = ttlCache<TradeResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim())
-  return Number.isFinite(n) ? n : null
-}
-const str = (v: unknown) => (v == null ? '' : String(v).trim())
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const url = new URL(`https://api.data.gov.in/resource/${id}`)
-  url.searchParams.set('api-key', apiKey)
-  url.searchParams.set('format', 'json')
-  url.searchParams.set('limit', '5000')
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-  const d = (await res.json()) as { status: string; records: Record<string, unknown>[] }
-  if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-  return d.records
-}
 
 function parseBalance(records: Record<string, unknown>[]): TradeBalanceRow[] {
   return records.map((r) => ({ year: str(r._year), balanceBn: num(r.merchandise_trade_balance) })).filter((r) => r.year)
@@ -77,20 +60,22 @@ type SnapshotShape = { balance: TradeBalanceRow[]; eu: EuLedgerRow[]; chemicals:
 
 export async function getTradeData(): Promise<TradeResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
   if (apiKey) {
     try {
       const [balanceRaw, euRaw, chemRaw] = await Promise.all([
-        fetchAll(apiKey, RES.balance),
-        fetchAll(apiKey, RES.eu),
-        fetchAll(apiKey, RES.chemicals),
+        fetchOgdRecords(apiKey, RES.balance),
+        fetchOgdRecords(apiKey, RES.eu),
+        fetchOgdRecords(apiKey, RES.chemicals),
       ])
       const balance = parseBalance(balanceRaw)
       const eu = parseEu(euRaw)
       const { rows: chemicals, total: chemicalsTotal } = parseChemicals(chemRaw)
       if (balance.length && eu.length && chemicals.length) {
-        liveCache = buildResponse('live', balance, eu, chemicals, chemicalsTotal)
-        return liveCache
+        const resp = buildResponse('live', balance, eu, chemicals, chemicalsTotal)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

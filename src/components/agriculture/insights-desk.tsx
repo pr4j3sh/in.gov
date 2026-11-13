@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ShieldCheck, History } from 'lucide-react'
 import { HudPanel } from '@/components/hud/hud-panel'
-import { Chip } from '@/components/hud/chip'
-import { ManifestStrip } from '@/components/hud/manifest-strip'
-import { SourceLink } from '@/components/hud/source-link'
-import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
+import { TickerSkeleton } from '@/components/hud/skeleton'
 import { formatCompact } from '@/lib/format'
 
 type BestBlock = { rows: Array<{ market: string; state: string; modalPrice: number; relativeToMedianPct: number }>; commodityMedian: number | null }
@@ -44,6 +41,10 @@ export function InsightsDesk() {
 
   return (
     <>
+      {error && (
+        <p className="mt-4 rounded-md border border-rose-400/30 bg-rose-400/5 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-rose-300">▲ {error}</p>
+      )}
+
       {/* DATA QUALITY banner — full width */}
       {!loading && data && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5 font-mono text-[9px] tracking-[0.14em] shadow-[inset_0_1px_0_rgba(167,243,208,0.15)]">
@@ -80,7 +81,7 @@ export function InsightsDesk() {
           right={<span className="font-mono text-[8px] uppercase tracking-[0.22em] text-amber/80">N→S SPREAD</span>}
         >
           {loading ? <TickerSkeleton /> : !data || data.arbitrage.length === 0 ? (
-            <p className="font-mono text-[10px] text-text-dim">No arbitrage data on today's print.</p>
+            <p className="font-mono text-[10px] text-text-dim">No arbitrage data on today&rsquo;s print.</p>
           ) : (
             <ul className="divide-y divide-amber-400/8">
               {data.arbitrage.map((r) => (

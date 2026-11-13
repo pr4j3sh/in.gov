@@ -31,12 +31,6 @@ export interface HealthResponse {
   vacancies: VacancyRow[]
 }
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim())
-  return Number.isFinite(n) ? n : null
-}
-
 export function worstStatesByFic(rows: FicStateRow[], n = 10): FicStateRow[] {
   return [...rows].filter((r) => r.state !== 'India' && r.ficPct != null).sort((a, b) => (a.ficPct ?? 0) - (b.ficPct ?? 0)).slice(0, n)
 }

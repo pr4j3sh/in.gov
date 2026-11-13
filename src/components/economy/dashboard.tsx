@@ -19,6 +19,7 @@ import {
   valueAxis,
 } from '@/lib/chart-theme'
 import type { CpiResponse, CpiSectorKey } from '@/lib/cpi'
+import { escapeHtml } from '@/lib/format'
 
 const SECTORS: { key: CpiSectorKey; label: string }[] = [
   { key: 'rural', label: 'Rural' },
@@ -59,7 +60,8 @@ export function EconomyDashboard() {
   }, [])
 
   useEffect(() => {
-    load(sector)
+    const t = setTimeout(() => { void load(sector) }, 0)
+    return () => clearTimeout(t)
   }, [sector, load])
 
   const loading = syncing || !hasLoaded
@@ -84,7 +86,7 @@ export function EconomyDashboard() {
         ...glowTooltip('rgba(245,193,92,0.45)', '#fef3c7', { color: 'rgba(245,193,92,0.09)' }),
         formatter: (params: Array<{ name: string; value: number | null }>) => {
           const p = params[0]
-          return `<b style="color:#f5c15c">${p.name}</b><br/>YoY inflation: <b>${p.value == null ? '—' : p.value.toFixed(1) + '%'}</b>`
+          return `<b style="color:#f5c15c">${escapeHtml(p.name)}</b><br/>YoY inflation: <b>${p.value == null ? '—' : p.value.toFixed(1) + '%'}</b>`
         },
       },
       xAxis: categoryAxis(slice.labels, { interval: 'auto' as const, width: 46, overflow: 'truncate' as const }),
@@ -194,7 +196,7 @@ export function EconomyDashboard() {
         ...glowTooltip('rgba(245,193,92,0.4)', '#fef3c7', { color: 'rgba(245,193,92,0.08)' }),
         formatter: (params: Array<{ name: string; value: number | null }>) => {
           const p = params[0]
-          return `<b style="color:#f5c15c">${p.name}</b><br/>YoY inflation: <b>${p.value == null ? '—' : p.value.toFixed(1) + '%'}</b>`
+          return `<b style="color:#f5c15c">${escapeHtml(p.name)}</b><br/>YoY inflation: <b>${p.value == null ? '—' : p.value.toFixed(1) + '%'}</b>`
         },
       },
       xAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${v}%` }) }),

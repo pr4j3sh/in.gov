@@ -2,6 +2,7 @@ import {
   nonFossilShare, totalYoY, yoyShareDelta, solarTotal, type EnergyResponse, type MixRow, type NuclearRow, type SolarRow,
 } from '@/lib/energy'
 import energySnapshot from '@/lib/snapshots/energy.json'
+import { fetchOgdRecords, ttlCache, ogdNum as num, ogdStr as str } from '@/server/ogd'
 
 const RES = {
   mix: '75e31856-e00b-4de9-970e-987442936958',
@@ -9,27 +10,9 @@ const RES = {
   solar: '3056d949-7e94-4e2a-ad7f-9bf3dd82e530',
 } as const
 const LIVE_TTL_MS = 6 * 60 * 60 * 1000
-let liveCache: EnergyResponse | null = null
+const liveCache = ttlCache<EnergyResponse>(LIVE_TTL_MS)
 
-const num = (v: unknown): number | null => {
-  if (v == null) return null
-  const n = Number(String(v).trim().replace(/,/g, ''))
-  return Number.isFinite(n) ? n : null
-}
-const str = (v: unknown) => (v == null ? '' : String(v).trim())
 const isAggregate = (name: unknown) => /total|region|all india|india/i.test(String(name ?? ''))
-
-async function fetchAll(apiKey: string, id: string): Promise<Record<string, unknown>[]> {
-  const url = new URL(`https://api.data.gov.in/resource/${id}`)
-  url.searchParams.set('api-key', apiKey)
-  url.searchParams.set('format', 'json')
-  url.searchParams.set('limit', '5000')
-  const res = await fetch(url, { cache: 'no-store' })
-  if (!res.ok) throw new Error(`data.gov.in HTTP ${res.status}`)
-  const d = (await res.json()) as { status: string; records: Record<string, unknown>[] }
-  if (d.status !== 'ok') throw new Error(`data.gov.in status=${d.status}`)
-  return d.records
-}
 
 function parseMix(records: Record<string, unknown>[]): MixRow[] {
   return records.map((r) => ({
@@ -73,20 +56,22 @@ type SnapshotShape = { mix: MixRow[]; nuclear: NuclearRow[]; solar: SolarRow[] }
 
 export async function getEnergyData(): Promise<EnergyResponse> {
   const apiKey = process.env.DATA_GOV_IN_API_KEY?.trim()
-  if (liveCache) return liveCache
+  const cached = liveCache.get()
+  if (cached) return cached
   if (apiKey) {
     try {
       const [mixRaw, nuclearRaw, solarRaw] = await Promise.all([
-        fetchAll(apiKey, RES.mix),
-        fetchAll(apiKey, RES.nuclear),
-        fetchAll(apiKey, RES.solar),
+        fetchOgdRecords(apiKey, RES.mix),
+        fetchOgdRecords(apiKey, RES.nuclear),
+        fetchOgdRecords(apiKey, RES.solar),
       ])
       const mix = parseMix(mixRaw)
       const nuclear = parseNuclear(nuclearRaw)
       const solar = parseSolar(solarRaw)
       if (mix.length && nuclear.length && solar.length) {
-        liveCache = buildResponse('live', mix, nuclear, solar)
-        return liveCache
+        const resp = buildResponse('live', mix, nuclear, solar)
+        liveCache.set(resp)
+        return resp
       }
       throw new Error('incomplete live payload')
     } catch (err) {

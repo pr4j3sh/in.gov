@@ -1,3 +1,13 @@
+/** Escape text for safe interpolation into ECharts tooltip HTML. */
+export function escapeHtml(s: unknown): string {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export function formatINR(n: number): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',

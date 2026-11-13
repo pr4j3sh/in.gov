@@ -7,11 +7,12 @@ import { Chip } from '@/components/hud/chip'
 import { ManifestStrip } from '@/components/hud/manifest-strip'
 import { SourceLink } from '@/components/hud/source-link'
 import { StatusPill } from '@/components/hud/status-pill'
-import { ChartSkeleton, TickerSkeleton, StatTileSkeleton } from '@/components/hud/skeleton'
+import { ChartSkeleton, TickerSkeleton } from '@/components/hud/skeleton'
 import { NeonChart } from '@/components/charts/neon-chart'
-import { MONO_FONT, INDIGO_BAR, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
+import { MONO_FONT, categoryAxis, glowTooltip, monoLabel, valueAxis } from '@/lib/chart-theme'
 import { gstFullYears } from '@/lib/finmin'
 import type { FinminResponse } from '@/lib/finmin'
+import { escapeHtml } from '@/lib/format'
 
 const inLCr = (n: number | null) => (n == null ? '—' : `₹${(n / 100000).toFixed(2)} L Cr`)
 
@@ -36,7 +37,10 @@ export function BudgetDashboard() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const t = setTimeout(() => { void load() }, 0)
+    return () => clearTimeout(t)
+  }, [load])
 
   const loading = syncing || !hasLoaded
 
@@ -50,7 +54,7 @@ export function BudgetDashboard() {
         formatter: (params: Array<{ name: string; value: number | null }>) => {
           const p = params[0]
           const row = full.find((r) => r.year === p.name)
-          return `<b style="color:#818cf8">${p.name}</b><br/>collection: <b>₹${((p.value ?? 0) / 100000).toFixed(2)} L Cr</b><br/>growth: <b>${row?.growthPct == null ? '—' : '+' + row.growthPct.toFixed(0) + '%'}</b>`
+          return `<b style="color:#818cf8">${escapeHtml(p.name)}</b><br/>collection: <b>₹${((p.value ?? 0) / 100000).toFixed(2)} L Cr</b><br/>growth: <b>${row?.growthPct == null ? '—' : '+' + row.growthPct.toFixed(0) + '%'}</b>`
         },
       },
       xAxis: categoryAxis(full.map((r) => r.year), { interval: 0 }),
@@ -84,8 +88,8 @@ export function BudgetDashboard() {
       tooltip: {
         ...glowTooltip('rgba(129,140,248,0.45)', '#e0e7ff', { color: 'rgba(129,140,248,0.09)' }),
         formatter: (params: Array<{ seriesName: string; name: string; value: number }>) =>
-          `<b style="color:#818cf8">${params[0].name}</b><br/>${params.map((p) =>
-            `${p.seriesName}: <b>₹${(p.value / 100000).toFixed(2)} L Cr</b>`).join('<br/>')}`,
+          `<b style="color:#818cf8">${escapeHtml(params[0].name)}</b><br/>${params.map((p) =>
+            `${escapeHtml(p.seriesName)}: <b>₹${(p.value / 100000).toFixed(2)} L Cr</b>`).join('<br/>')}`,
       },
       legend: { show: true, top: 0, right: 0, textStyle: { color: '#c7d2fe', fontFamily: MONO_FONT, fontSize: 9 }, itemWidth: 14, itemHeight: 10 },
       xAxis: categoryAxis(data.directTax.map((r) => r.year)),
@@ -104,7 +108,7 @@ export function BudgetDashboard() {
       tooltip: {
         ...glowTooltip('rgba(192,132,252,0.45)', '#f3e8ff', { color: 'rgba(192,132,252,0.09)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#c084fc">${params[0].name}</b><br/>Gender Budget: <b>₹${(params[0].value / 100000).toFixed(2)} L Cr</b>`,
+          `<b style="color:#c084fc">${escapeHtml(params[0].name)}</b><br/>Gender Budget: <b>₹${(params[0].value / 100000).toFixed(2)} L Cr</b>`,
       },
       xAxis: categoryAxis(data.genderBudget.map((r) => r.year)),
       yAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${(v / 100000).toFixed(1)}` }) }),
@@ -136,7 +140,7 @@ export function BudgetDashboard() {
       tooltip: {
         ...glowTooltip('rgba(251,113,133,0.4)', '#fecdd3', { color: 'rgba(251,113,133,0.08)' }),
         formatter: (params: Array<{ name: string; value: number }>) =>
-          `<b style="color:#fb7185">${params[0].name}</b><br/>disinvest. receipts: <b>${params[0].value.toFixed(2)}%</b> of total receipts`,
+          `<b style="color:#fb7185">${escapeHtml(params[0].name)}</b><br/>disinvest. receipts: <b>${params[0].value.toFixed(2)}%</b> of total receipts`,
       },
       xAxis: categoryAxis(data.disinvestment.map((r) => r.year)),
       yAxis: valueAxis({ axisLabel: monoLabel({ formatter: (v: number) => `${v}%` }) }),
